@@ -1,6 +1,6 @@
-FROM python:3.10.4-slim
+FROM python:3.10-slim
 
-# System dependencies install karein (404 error fix karne ke liye apt upgrade hata diya hai)
+# System dependencies install
 RUN apt-get update && apt-get install -y \
     git \
     curl \
