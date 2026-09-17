@@ -73,20 +73,28 @@ async def token_handler(client, message):
     msg = await app.get_messages(chat_id, 796)
     user_id = message.chat.id
     if len(message.command) <= 1:
-        image_url = "https://i.postimg.cc/v8q8kGyz/startimg-1.jpg"
-        join_button = InlineKeyboardButton("Join Channel", url="https://t.me/team_spy_pro")
-        premium = InlineKeyboardButton("Get Premium", url="https://t.me/kingofpatal")   
+        update_url = "https://t.me/team_spy_pro"
+        developer_url = "https://t.me/devgaganin"
+        join_button = InlineKeyboardButton("Join Channel", url=update_url)
+        premium = InlineKeyboardButton("Get Premium", url="https://t.me/kingofpatal")
         keyboard = InlineKeyboardMarkup([
-            [join_button],   
-            [premium]    
+            [
+                InlineKeyboardButton("DEVELOPER", url=developer_url),
+                InlineKeyboardButton("UPDATE", url=update_url)
+            ],
+            [
+                InlineKeyboardButton("Help", callback_data="start_help"),
+                InlineKeyboardButton("ABOUT ME 😎", url=developer_url)
+            ],
+            [join_button, premium]
         ])
          
         await message.reply_photo(
             msg.photo.file_id,
             caption=(
-                "Hi 👋 Welcome, Wanna intro...?\n\n"
-                "✳️ I can save posts from channels or groups where forwarding is off. I can download videos/audio from YT, INSTA, ... social platforms\n"
-                "✳️ Simply send the post link of a public channel. For private channels, do /login. Send /help to know more."
+                "Yoo MAHATM8ツ!! Welcome Aboard\n\n"
+                "I Can Save Posts From Channels or Groups Even When Forwarding is Disabled (Yep, I'm That Powerful 😎)\n\n"
+                "For Public Channel Just Send the Link of the Post & For Private Channel Use /login First 🔑"
             ),
             reply_markup=keyboard
         )
@@ -114,6 +122,18 @@ async def token_handler(client, message):
         else:
             await message.reply("❌ Invalid or expired verification link. Please generate a new token.")
             return
+
+
+@app.on_callback_query(filters.regex("^start_help$"))
+async def start_help_callback(client, callback_query):
+    join = await subscribe(client, callback_query.message)
+    if join == 1:
+        await callback_query.answer()
+        return
+
+    from devgagan.modules.start import send_or_edit_help_page
+    await send_or_edit_help_page(client, callback_query.message, 0)
+    await callback_query.answer()
  
 @app.on_message(filters.command("token"))
 async def smart_handler(client, message):
