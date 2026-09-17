@@ -74,19 +74,21 @@ async def token_handler(client, message):
     user_id = message.chat.id
     if len(message.command) <= 1:
         image_url = "https://i.postimg.cc/v8q8kGyz/startimg-1.jpg"
-        join_button = InlineKeyboardButton("Join Channel", url="https://t.me/team_spy_pro")
-        premium = InlineKeyboardButton("Get Premium", url="https://t.me/kingofpatal")   
+        developer_button = InlineKeyboardButton("DEVELOPER", url="https://t.me/devgaganin")
+        update_button = InlineKeyboardButton("UPDATE", url="https://t.me/team_spy_pro")
+        help_button = InlineKeyboardButton("Help", callback_data="start_help")
+        about_button = InlineKeyboardButton("ABOUT ME 😎", url="https://t.me/devgaganin")
         keyboard = InlineKeyboardMarkup([
-            [join_button],   
-            [premium]    
+            [developer_button, update_button],
+            [help_button, about_button]
         ])
          
         await message.reply_photo(
             msg.photo.file_id,
             caption=(
-                "Hi 👋 Welcome, Wanna intro...?\n\n"
-                "✳️ I can save posts from channels or groups where forwarding is off. I can download videos/audio from YT, INSTA, ... social platforms\n"
-                "✳️ Simply send the post link of a public channel. For private channels, do /login. Send /help to know more."
+                "Yoo MAHATM8ツ!! Welcome Aboard\n\n"
+                "I Can Save Posts From Channels or Groups Even When Forwarding is Disabled (Yep, I'm That Powerful 😎)\n\n"
+                "For Public Channel Just Send the Link of the Post & For Private Channel Use /login First 🔑"
             ),
             reply_markup=keyboard
         )

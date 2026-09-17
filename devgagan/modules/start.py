@@ -150,8 +150,14 @@ async def help(client, message):
  
      
     await send_or_edit_help_page(client, message, 0)
- 
- 
+
+
+@app.on_callback_query(filters.regex("^start_help$"))
+async def start_help_callback(client, callback_query):
+    await send_or_edit_help_page(client, callback_query.message, 0)
+    await callback_query.answer()
+
+
 @app.on_callback_query(filters.regex(r"help_(prev|next)_(\d+)"))
 async def on_help_navigation(client, callback_query):
     action, page_number = callback_query.data.split("_")[1], int(callback_query.data.split("_")[2])
