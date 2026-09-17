@@ -163,8 +163,14 @@ async def on_help_navigation(client, callback_query):
  
      
     await send_or_edit_help_page(client, callback_query.message, page_number)
- 
-     
+  
+      
+    await callback_query.answer()
+
+
+@app.on_callback_query(filters.regex("^start_help$"))
+async def on_start_help(client, callback_query):
+    await send_or_edit_help_page(client, callback_query.message, 0)
     await callback_query.answer()
  
  

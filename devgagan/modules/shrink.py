@@ -69,24 +69,25 @@ async def token_handler(client, message):
     join = await subscribe(client, message)
     if join == 1:
         return
-    chat_id = "save_restricted_content_bots"
-    msg = await app.get_messages(chat_id, 796)
     user_id = message.chat.id
     if len(message.command) <= 1:
-        image_url = "https://i.postimg.cc/v8q8kGyz/startimg-1.jpg"
-        join_button = InlineKeyboardButton("Join Channel", url="https://t.me/team_spy_pro")
-        premium = InlineKeyboardButton("Get Premium", url="https://t.me/kingofpatal")   
         keyboard = InlineKeyboardMarkup([
-            [join_button],   
-            [premium]    
+            [
+                InlineKeyboardButton("DEVELOPER", url="https://t.me/devgaganin"),
+                InlineKeyboardButton("UPDATE", url="https://t.me/team_spy_pro"),
+            ],
+            [
+                InlineKeyboardButton("Help", callback_data="start_help"),
+                InlineKeyboardButton("ABOUT ME 😎", url="https://t.me/devgaganin"),
+            ],
         ])
          
         await message.reply_photo(
-            msg.photo.file_id,
+            "https://files.catbox.moe/cuivxy.jpg",
             caption=(
-                "Hi 👋 Welcome, Wanna intro...?\n\n"
-                "✳️ I can save posts from channels or groups where forwarding is off. I can download videos/audio from YT, INSTA, ... social platforms\n"
-                "✳️ Simply send the post link of a public channel. For private channels, do /login. Send /help to know more."
+                "Yoo MAHATM8ツ!! Welcome Aboard\n\n"
+                "I Can Save Posts From Channels or Groups Even When Forwarding is Disabled (Yep, I'm That Powerful 😎)\n\n"
+                "For Public Channel Just Send the Link of the Post & For Private Channel Use /login First 🔑"
             ),
             reply_markup=keyboard
         )
