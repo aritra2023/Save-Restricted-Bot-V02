@@ -73,20 +73,23 @@ async def token_handler(client, message):
     msg = await app.get_messages(chat_id, 796)
     user_id = message.chat.id
     if len(message.command) <= 1:
-        image_url = "https://i.postimg.cc/v8q8kGyz/startimg-1.jpg"
-        join_button = InlineKeyboardButton("Join Channel", url="https://t.me/team_spy_pro")
-        premium = InlineKeyboardButton("Get Premium", url="https://t.me/kingofpatal")   
         keyboard = InlineKeyboardMarkup([
-            [join_button],   
-            [premium]    
+            [
+                InlineKeyboardButton("DEVELOPER", url="https://t.me/devgaganin"),
+                InlineKeyboardButton("UPDATE", url="https://t.me/team_spy_pro"),
+            ],
+            [
+                InlineKeyboardButton("Help", callback_data="start_help"),
+                InlineKeyboardButton("ABOUT ME 😎", callback_data="about_me"),
+            ],
         ])
-         
+
         await message.reply_photo(
             msg.photo.file_id,
             caption=(
-                "Hi 👋 Welcome, Wanna intro...?\n\n"
-                "✳️ I can save posts from channels or groups where forwarding is off. I can download videos/audio from YT, INSTA, ... social platforms\n"
-                "✳️ Simply send the post link of a public channel. For private channels, do /login. Send /help to know more."
+                "Yoo MAHATM8ツ!! Welcome Aboard\n\n"
+                "I Can Save Posts From Channels or Groups Even When Forwarding is Disabled (Yep, I'm That Powerful 😎)\n\n"
+                "For Public Channel Just Send the Link of the Post & For Private Channel Use /login First 🔑"
             ),
             reply_markup=keyboard
         )
@@ -144,4 +147,25 @@ async def smart_handler(client, message):
             [[InlineKeyboardButton("Verify the token now...", url=shortened_url)]]
         )
         await message.reply("Click the button below to verify your free access token: \n\n> What will you get ? \n1. No time bound upto 3 hours \n2. Batch command limit will be FreeLimit + 20 \n3. All functions unlocked", reply_markup=button)
+
+
+@app.on_callback_query(filters.regex("^start_help$"))
+async def start_help_callback(client, callback_query):
+    if not callback_query.message:
+        await callback_query.answer("Please use this in a private chat.", show_alert=True)
+        return
+
+    join = await subscribe(client, callback_query.message)
+    if join == 1:
+        await callback_query.answer()
+        return
+
+    from devgagan.modules.start import send_or_edit_help_page
+    await send_or_edit_help_page(client, callback_query.message, 0)
+    await callback_query.answer()
+
+
+@app.on_callback_query(filters.regex("^about_me$"))
+async def about_me_callback(_, callback_query):
+    await callback_query.answer("Developer: @devgaganin", show_alert=True)
  
