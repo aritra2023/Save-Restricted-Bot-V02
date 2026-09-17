@@ -14,11 +14,12 @@
 # ---------------------------------------------------
 
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 import random
 import requests
 import string
 import aiohttp
+from html import escape
 from devgagan import app
 from devgagan.core.func import *
 from datetime import datetime, timedelta
@@ -38,6 +39,10 @@ async def create_ttl_index():
  
 Param = {}
  
+START_IMAGE_URL = "https://files.catbox.moe/cuivxy.jpg"
+ABOUT_IMAGE_PATH = "attached_assets/about-image.jpg"
+PROFILE_LINK = "https://t.me/itzrishu"
+
  
 async def generate_random_param(length=8):
     """Generate a random parameter."""
@@ -63,33 +68,48 @@ async def is_user_verified(user_id):
     return session is not None
  
  
+def start_keyboard():
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("DEVELOPER 🧑‍💻", url=PROFILE_LINK),
+                InlineKeyboardButton("UPDATES 🚨", url=PROFILE_LINK),
+            ],
+            [
+                InlineKeyboardButton("Help", callback_data="start_help"),
+                InlineKeyboardButton("ABOUT ME 😎", callback_data="about_me"),
+            ],
+        ]
+    )
+
+
+async def send_start_message(message):
+    """Send the redesigned welcome message and its action buttons."""
+    await message.reply_photo(
+        START_IMAGE_URL,
+        caption=(
+            "<b><i>Yoo 𒐕𒐕𒐕 !! Welcome Aboard</i></b>\n\n"
+            "<b><i>I Can Save Posts From Channels or Groups\n"
+            "Even When Forwarding is Disabled (Yep, I’m\n"
+            "That Powerful😎)</i></b>\n\n"
+            "<b><i>For Public Channel Just Send the Link of the\n"
+            "Post & For Private Channel Use /login First\n"
+            "🔑</i></b>"
+        ),
+        reply_markup=start_keyboard(),
+        parse_mode="html",
+    )
+
+
 @app.on_message(filters.command("start"))
 async def token_handler(client, message):
-    """Handle the /token command."""
+    """Handle the /start command and deep-link verification."""
     join = await subscribe(client, message)
     if join == 1:
         return
-    chat_id = "save_restricted_content_bots"
-    msg = await app.get_messages(chat_id, 796)
     user_id = message.chat.id
     if len(message.command) <= 1:
-        image_url = "https://i.postimg.cc/v8q8kGyz/startimg-1.jpg"
-        join_button = InlineKeyboardButton("Join Channel", url="https://t.me/team_spy_pro")
-        premium = InlineKeyboardButton("Get Premium", url="https://t.me/kingofpatal")   
-        keyboard = InlineKeyboardMarkup([
-            [join_button],   
-            [premium]    
-        ])
-         
-        await message.reply_photo(
-            msg.photo.file_id,
-            caption=(
-                "Hi 👋 Welcome, Wanna intro...?\n\n"
-                "✳️ I can save posts from channels or groups where forwarding is off. I can download videos/audio from YT, INSTA, ... social platforms\n"
-                "✳️ Simply send the post link of a public channel. For private channels, do /login. Send /help to know more."
-            ),
-            reply_markup=keyboard
-        )
+        await send_start_message(message)
         return  
  
     param = message.command[1] if len(message.command) > 1 else None
@@ -114,6 +134,70 @@ async def token_handler(client, message):
         else:
             await message.reply("❌ Invalid or expired verification link. Please generate a new token.")
             return
+
+
+@app.on_callback_query(filters.regex(r"^start_help$"))
+async def start_help_callback(client, callback_query):
+    """Open the existing /help flow and remove the welcome message."""
+    from devgagan.modules.start import send_or_edit_help_page
+
+    await callback_query.answer()
+    await send_or_edit_help_page(client, callback_query.message, 0)
+
+
+@app.on_callback_query(filters.regex(r"^about_me$"))
+async def about_me_callback(client, callback_query):
+    """Show the bot details screen from the welcome message."""
+    user = callback_query.from_user
+    display_name = escape(
+        " ".join(part for part in (user.first_name, user.last_name) if part)
+    )
+    profile_url = f"tg://user?id={user.id}"
+    about_text = (
+        "<b><i>▸⁉️ MY DETAILS ❞</i></b>\n\n"
+        f"<b>• MY NAME :</b> Save restricted content bot\n"
+        f"<b>• MY BEST FRIEND :</b> <a href=\"{profile_url}\">{display_name}</a> ❤️\n"
+        "<b>• DEVELOPER :</b> ISHAN BOTZ\n"
+        "<b>• LIBRARY :</b> PYROGRAM\n"
+        "<b>• LANGUAGE :</b> PYTHON 3\n"
+        "<b>• DATABASE :</b> MONGO DB\n"
+        "<b>• BOT SERVER :</b> HEROKU\n"
+        "<b>• BUILD STATUS :</b> V2.7.1 [STABLE]"
+    )
+    about_keyboard = InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("SUPPORT 📡", url=PROFILE_LINK),
+                InlineKeyboardButton("JOIN NOW 🚨", url=PROFILE_LINK),
+            ],
+            [
+                InlineKeyboardButton("CLOSE ❌", callback_data="close_about"),
+                InlineKeyboardButton("⬅️ Back", callback_data="about_back"),
+            ],
+        ]
+    )
+    await callback_query.answer()
+    await callback_query.message.edit_media(
+        media=InputMediaPhoto(
+            ABOUT_IMAGE_PATH,
+            caption=about_text,
+            parse_mode="html",
+        ),
+        reply_markup=about_keyboard,
+    )
+
+
+@app.on_callback_query(filters.regex(r"^close_about$"))
+async def close_about_callback(client, callback_query):
+    await callback_query.answer()
+    await callback_query.message.delete()
+
+
+@app.on_callback_query(filters.regex(r"^about_back$"))
+async def about_back_callback(client, callback_query):
+    await callback_query.answer()
+    await callback_query.message.delete()
+    await send_start_message(callback_query.message)
  
 @app.on_message(filters.command("token"))
 async def smart_handler(client, message):
