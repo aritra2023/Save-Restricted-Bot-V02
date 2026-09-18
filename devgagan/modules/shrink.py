@@ -40,7 +40,6 @@ async def create_ttl_index():
 Param = {}
  
 START_IMAGE_URL = "https://files.catbox.moe/cuivxy.jpg"
-ABOUT_IMAGE_PATH = "attached_assets/about-image.jpg"
 PROFILE_LINK = "https://t.me/itzrishu"
 
  
@@ -85,20 +84,29 @@ def start_keyboard():
 
 async def send_start_message(message):
     """Send the redesigned welcome message and its action buttons."""
-    await message.reply_photo(
-        START_IMAGE_URL,
-        caption=(
-            "<b><i>Yoo 𒐕𒐕𒐕 !! Welcome Aboard</i></b>\n\n"
-            "<b><i>I Can Save Posts From Channels or Groups\n"
-            "Even When Forwarding is Disabled (Yep, I’m\n"
-            "That Powerful😎)</i></b>\n\n"
-            "<b><i>For Public Channel Just Send the Link of the\n"
-            "Post & For Private Channel Use /login First\n"
-            "🔑</i></b>"
-        ),
-        reply_markup=start_keyboard(),
-        parse_mode="html",
+    start_text = (
+        "<b><i>Yoo 𒐕𒐕𒐕 !! Welcome Aboard</i></b>\n\n"
+        "<b><i>I Can Save Posts From Channels or Groups\n"
+        "Even When Forwarding is Disabled (Yep, I’m\n"
+        "That Powerful😎)</i></b>\n\n"
+        "<b><i>For Public Channel Just Send the Link of the\n"
+        "Post & For Private Channel Use /login First\n"
+        "🔑</i></b>"
     )
+    try:
+        await message.reply_photo(
+            START_IMAGE_URL,
+            caption=start_text,
+            reply_markup=start_keyboard(),
+            parse_mode="html",
+        )
+    except Exception:
+        await message.reply(
+            start_text,
+            reply_markup=start_keyboard(),
+            parse_mode="html",
+            disable_web_page_preview=True,
+        )
 
 
 @app.on_message(filters.command("start"))
@@ -177,14 +185,22 @@ async def about_me_callback(client, callback_query):
         ]
     )
     await callback_query.answer()
-    await callback_query.message.edit_media(
-        media=InputMediaPhoto(
-            ABOUT_IMAGE_PATH,
-            caption=about_text,
+    try:
+        await callback_query.message.edit_media(
+            media=InputMediaPhoto(
+                START_IMAGE_URL,
+                caption=about_text,
+                parse_mode="html",
+            ),
+            reply_markup=about_keyboard,
+        )
+    except Exception:
+        await callback_query.message.edit_text(
+            about_text,
+            reply_markup=about_keyboard,
             parse_mode="html",
-        ),
-        reply_markup=about_keyboard,
-    )
+            disable_web_page_preview=True,
+        )
 
 
 @app.on_callback_query(filters.regex(r"^close_about$"))
